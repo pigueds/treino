@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORJA — App de Treino</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --surface: #111113;
+    --surface2: #1a1a1e;
+    --border: #242428;
+    --accent: #e8ff47;
+    --accent2: #ff4747;
+    --text: #f0f0f0;
+    --muted: #6a6a75;
+    --muted2: #3a3a42;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  /* SCREENS */
+  .screen { display: none; min-height: 100vh; flex-direction: column; animation: fadeIn .35s ease; }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* HEADER */
+  .app-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(10,10,11,.92); backdrop-filter: blur(12px); z-index: 100; }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; color: var(--accent); }
+  .back-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; transition: all .2s; }
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* HERO SCREEN */
+  #screen-home { background: radial-gradient(ellipse at 60% 0%, #1e2a00 0%, var(--bg) 60%); }
+  .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; gap: 32px; }
+  .hero-badge { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 3px; color: var(--accent); background: rgba(232,255,71,.1); border: 1px solid rgba(232,255,71,.25); padding: 6px 16px; border-radius: 100px; }
+  .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(64px, 15vw, 120px); line-height: .9; letter-spacing: 4px; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { font-size: 17px; color: var(--muted); max-width: 400px; line-height: 1.6; }
+  .btn-primary { background: var(--accent); color: #0a0a0b; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 16px 48px; border: none; border-radius: var(--radius); cursor: pointer; transition: all .2s; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,255,71,.35); }
+
+  /* FOCUS SCREEN */
+  .screen-content { flex: 1; padding: 32px 24px; max-width: 600px; margin: 0 auto; width: 100%; }
+  .screen-title { font-family: 'Bebas Neue', sans-serif; font-size: 38px; letter-spacing: 2px; margin-bottom: 6px; }
+  .screen-sub { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+  .focus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .focus-card { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 20px 16px; cursor: pointer; transition: all .2s; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .focus-card:hover { border-color: var(--muted2); transform: translateY(-2px); }
+  .focus-card.selected { border-color: var(--accent); background: rgba(232,255,71,.06); }
+  .focus-card.selected .focus-check { opacity: 1; }
+  .focus-icon { font-size: 28px; }
+  .focus-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; }
+  .focus-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .focus-check { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; align-self: flex-end; }
+  .focus-check::after { content: '✓'; font-size: 12px; color: #0a0a0b; font-weight: 700; }
+  .selection-count { margin-bottom: 24px; color: var(--muted); font-size: 13px; }
+  .selection-count span { color: var(--accent); font-weight: 600; }
+
+  /* PLANO SCREEN */
+  .plan-header { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+  .plan-type { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: var(--accent); letter-spacing: 4px; }
+  .plan-meta { text-align: right; }
+  .plan-meta .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .plan-meta .value { font-size: 16px; font-weight: 600; margin-top: 2px; }
+  .day-tabs { display: flex; gap: 8px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 4px; }
+  .day-tab { background: var(--surface); border: 2px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; white-space: nowrap; transition: all .2s; }
+  .day-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(232,255,71,.07); }
+  .day-tab:hover:not(.active) { border-color: var(--muted2); color: var(--text); }
+  .muscle-section { margin-bottom: 28px; }
+  .muscle-label { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+  .exercise-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .2s; }
+  .exercise-card:hover { border-color: var(--muted2); background: var(--surface2); transform: translateX(4px); }
+  .ex-sets { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 72px; }
+  .ex-sets .sets-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .ex-sets .sets-value { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); font-weight: 700; margin-top: 2px; }
+  .ex-info { flex: 1; }
+  .ex-name { font-weight: 600; font-size: 15px; margin-bottom: 3px; }
+  .ex-muscle { font-size: 12px; color: var(--muted); }
+  .ex-load { text-align: right; }
+  .load-value { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: var(--accent); }
+  .load-unit { font-size: 11px; color: var(--muted); }
+  .load-empty { font-size: 12px; color: var(--muted2); }
+  .ex-arrow { color: var(--muted2); font-size: 18px; }
+
+  /* EXERCISE DETAIL MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 200; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 28px 24px 40px; animation: slideUp .3s ease; }
+  @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-handle { width: 40px; height: 4px; background: var(--muted2); border-radius: 2px; margin: 0 auto 24px; }
+  .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 2px; margin-bottom: 4px; }
+  .modal-muscle { font-size: 13px; color: var(--accent); margin-bottom: 20px; font-family: 'Space Mono', monospace; letter-spacing: 1px; }
+  .modal-section { margin-bottom: 20px; }
+  .modal-section-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; font-family: 'Space Mono', monospace; }
+  .modal-desc { font-size: 14px; color: #c0c0c8; line-height: 1.7; }
+  .sets-display { display: flex; gap: 10px; flex-wrap: wrap; }
+  .set-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; text-align: center; }
+  .set-badge .sn { font-size: 10px; color: var(--muted); }
+  .set-badge .sv { font-family: 'Space Mono', monospace; font-size: 15px; color: var(--text); font-weight: 700; margin-top: 2px; }
+  .video-btn { display: flex; align-items: center; gap: 12px; background: #ff0000; color: #fff; border: none; border-radius: var(--radius); padding: 14px 20px; width: 100%; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; transition: opacity .2s; text-decoration: none; margin-bottom: 20px; }
+  .video-btn:hover { opacity: .85; }
+  .video-icon { font-size: 22px; }
+  .load-input-area { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .load-input-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .load-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 20px; padding: 12px 16px; outline: none; transition: border-color .2s; }
+  .load-input:focus { border-color: var(--accent); }
+  .load-input::placeholder { color: var(--muted2); font-size: 16px; }
+  .save-load-btn { background: var(--accent); color: #0a0a0b; border: none; border-radius: 8px; padding: 12px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .save-load-btn:hover { opacity: .9; transform: scale(1.03); }
+  .load-history { margin-top: 12px; }
+  .load-history-item { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); padding: 4px 0; border-bottom: 1px solid var(--border); }
+
+  /* PROGRESS SCREEN */
+  .prog-nav { display: flex; gap: 8px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 4px; }
+  .prog-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; white-space: nowrap; transition: all .2s; }
+  .prog-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(232,255,71,.07); }
+  .chart-container { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+  .chart-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; margin-bottom: 4px; }
+  .chart-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+  .chart-svg-wrap { width: 100%; overflow-x: auto; }
+  svg.progress-chart { display: block; }
+  .no-data { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 0; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; }
+  .stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); }
+  .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* BOTTOM NAV */
+  .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(17,17,19,.97); border-top: 1px solid var(--border); padding: 10px 20px 20px; backdrop-filter: blur(16px); z-index: 99; }
+  .bottom-nav.visible { display: flex; justify-content: space-around; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: var(--muted); transition: color .2s; padding: 4px 16px; border-radius: 8px; }
+  .nav-item.active { color: var(--accent); }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 10px; font-family: 'Space Mono', monospace; letter-spacing: 1px; }
+  body.has-plan { padding-bottom: 80px; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="app-header"><div class="logo">FORJA</div></div>
+  <div class="hero">
+    <div class="hero-badge">TREINAMENTO INTELIGENTE</div>
+    <h1>MOLDE<br>SEU<br><span>CORPO</span></h1>
+    <p>Monte seu plano de treino personalizado e acompanhe sua evolução com gráficos de carga.</p>
+    <button class="btn-primary" onclick="goTo('screen-focus')">COMEÇAR AGORA</button>
+  </div>
+</div>
+
+<!-- FOCUS -->
+<div id="screen-focus" class="screen">
+  <div class="app-header">
+    <div class="logo">FORJA</div>
+    <button class="back-btn" onclick="goTo('screen-home')">← Voltar</button>
+  </div>
+  <div class="screen-content">
+    <div class="screen-title">SEU FOCO</div>
+    <div class="screen-sub">Escolha até 2 grupos musculares para priorizar no treino</div>
+    <div class="selection-count">Selecionados: <span id="sel-count">0</span>/2</div>
+    <div class="focus-grid" id="focus-grid"></div>
+    <button class="btn-primary" style="width:100%;margin-top:28px" onclick="buildPlan()">GERAR MEU TREINO →</button>
+  </div>
+</div>
+
+<!-- PLAN -->
+<div id="screen-plan" class="screen">
+  <div class="app-header">
+    <div class="logo">FORJA</div>
+    <button class="back-btn" onclick="goTo('screen-focus')">← Foco</button>
+  </div>
+  <div class="screen-content">
+    <div class="plan-header">
+      <div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace">Plano</div>
+        <div class="plan-type" id="plan-type-label">ABC</div>
+      </div>
+      <div class="plan-meta">
+        <div class="label">Dias/semana</div>
+        <div class="value" id="plan-days-label">3</div>
+        <div class="label" style="margin-top:8px">Foco</div>
+        <div class="value" id="plan-focus-label" style="font-size:13px;color:var(--accent)"></div>
+      </div>
+    </div>
+    <div class="day-tabs" id="day-tabs"></div>
+    <div id="exercises-container"></div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div id="screen-progress" class="screen">
+  <div class="app-header">
+    <div class="logo">FORJA</div>
+  </div>
+  <div class="screen-content">
+    <div class="screen-title">EVOLUÇÃO</div>
+    <div class="screen-sub">Acompanhe sua progressão de carga por exercício</div>
+    <div class="stats-row" id="stats-row"></div>
+    <div class="prog-nav" id="prog-nav"></div>
+    <div id="charts-area"></div>
+  </div>
+</div>
+
+<!-- MODAL EXERCÍCIO -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-handle"></div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottom-nav">
+  <div class="nav-item active" id="nav-treino" onclick="switchTab('screen-plan','nav-treino')">
+    <div class="nav-icon">🏋️</div><div class="nav-label">TREINO</div>
+  </div>
+  <div class="nav-item" id="nav-prog" onclick="switchTab('screen-progress','nav-prog')">
+    <div class="nav-icon">📈</div><div class="nav-label">EVOLUÇÃO</div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const FOCUSES = [
+  { id:'chest',   icon:'💪', name:'Peito',    desc:'Peitoral maior e menor, músculo coracobraquial' },
+  { id:'back',    icon:'🦾', name:'Costas',   desc:'Latíssimo, trapézio, romboides, eretores' },
+  { id:'shoulder',icon:'🏹', name:'Ombro',    desc:'Deltoides anterior, medial e posterior' },
+  { id:'arms',    icon:'🦵', name:'Braços',   desc:'Bíceps, tríceps e antebraço' },
+  { id:'legs',    icon:'🦿', name:'Pernas',   desc:'Quadríceps, isquiotibiais, glúteos, panturrilhas' },
+  { id:'core',    icon:'⚡', name:'Core',     desc:'Abdômen, oblíquos e lombar' },
+];
+
+const EXERCISE_DB = {
+  chest:[
+    { id:'sup-plano', name:'Supino Plano', sets:'4x12-10-8-8', muscle:'Peitoral Maior', desc:'Exercício base para o desenvolvimento do peitoral. Deite no banco, desça a barra até o peito e empurre para cima de forma controlada. Mantenha os pés no chão e a lombar levemente arqueada.', yt:'https://www.youtube.com/watch?v=rT7DgCr-3pg' },
+    { id:'sup-incl', name:'Supino Inclinado', sets:'3x12-10-8', muscle:'Peitoral Superior', desc:'Versão inclinada do supino para enfatizar a parte superior do peitoral. Banco em 30-45 graus. Controle a descida da barra por 2 segundos.', yt:'https://www.youtube.com/watch?v=DbFgADa2PL8' },
+    { id:'crossover', name:'Crossover no Cabo', sets:'3x15-12-12', muscle:'Peitoral/Definição', desc:'Exercício de isolamento. Puxe os cabos cruzando à frente do corpo, contraindo fortemente o peitoral na fase de aproximação. Ótimo para a linha do meio e definição.', yt:'https://www.youtube.com/watch?v=taI4XduLpTk' },
+    { id:'mergulho', name:'Mergulho (Dip)', sets:'3x12', muscle:'Peitoral/Tríceps', desc:'Incline o corpo levemente para frente para recrutar mais o peitoral. Desça até o ângulo de 90 graus no cotovelo e empurre. Pode ser feito com carga extra.', yt:'https://www.youtube.com/watch?v=2z8JmcrW-As' },
+  ],
+  back:[
+    { id:'puxada', name:'Puxada Frontal', sets:'4x12-10-10-8', muscle:'Latíssimo do Dorso', desc:'Segure a barra com pegada aberta, puxe até a altura do queixo. Retraia as escápulas ao descer. É o principal exercício para a largura das costas.', yt:'https://www.youtube.com/watch?v=CAwf7n6Luuc' },
+    { id:'remada-baixa', name:'Remada Sentada no Cabo', sets:'4x12-10-10-8', muscle:'Costas/Espessura', desc:'Mantenha o torso levemente inclinado. Puxe o triângulo até o abdômen baixo, apertando as escápulas no final do movimento. Controle a fase excêntrica.', yt:'https://www.youtube.com/watch?v=GZbfZ033f74' },
+    { id:'remada-barra', name:'Remada Curvada', sets:'3x10-8-8', muscle:'Costas/Bíceps', desc:'Incline o torso a 45-70 graus, joelhos semiflexionados. Puxe a barra até o abdômen. Um dos melhores exercícios compostos para espessura das costas.', yt:'https://www.youtube.com/watch?v=kBWAon7ItDw' },
+    { id:'hi-row', name:'Pullover na Polia', sets:'3x15', muscle:'Latíssimo/Serrátil', desc:'Em pé ou deitado, mova os braços em arco passando pela lateral do tronco. Sinta o estiramento do latíssimo e a contração máxima ao fechar.', yt:'https://www.youtube.com/watch?v=mn6oaQrSPLw' },
+  ],
+  shoulder:[
+    { id:'dev-halter', name:'Desenvolvimento com Halteres', sets:'4x12-10-8-8', muscle:'Deltoide Anterior/Medial', desc:'Sente-se ou fique em pé, segure os halteres na altura dos ombros e empurre para cima. Leve levemente os cotovelos para frente no início do movimento.', yt:'https://www.youtube.com/watch?v=qEwKCR5JCog' },
+    { id:'elevacao-lat', name:'Elevação Lateral', sets:'4x15-12-12-12', muscle:'Deltoide Medial', desc:'Eleve os halteres lateralmente até a altura dos ombros. Leve o cotovelo ligeiramente para trás e para cima. Mantenha o polegar levemente para baixo para isolar o deltoide medial.', yt:'https://www.youtube.com/watch?v=3VcKaXpzqRo' },
+    { id:'passaro', name:'Elevação Posterior (Pássaro)', sets:'3x15-12-12', muscle:'Deltoide Posterior', desc:'Incline o tronco a 90°. Eleve os halteres lateralmente com os cotovelos levemente flexionados. Fundamental para equilíbrio postural e aparência 3D do ombro.', yt:'https://www.youtube.com/watch?v=owhHCgBqCF0' },
+    { id:'face-pull', name:'Face Pull', sets:'3x20', muscle:'Posterior/Manguito', desc:'Na altura dos olhos, puxe o cabo até o rosto separando as mãos ao final. Exercício essencial para saúde do manguito rotador e postura.', yt:'https://www.youtube.com/watch?v=rep-qVOkqgk' },
+  ],
+  arms:[
+    { id:'rosca-direta', name:'Rosca Direta com Barra', sets:'3x12-10-8', muscle:'Bíceps Braquial', desc:'Em pé, pegada na largura dos ombros. Flexione os cotovelos trazendo a barra até os ombros. Mantenha os cotovelos fixos ao lado do corpo durante todo o movimento.', yt:'https://www.youtube.com/watch?v=kwG2ipFRgfo' },
+    { id:'rosca-halter', name:'Rosca Alternada', sets:'3x12', muscle:'Bíceps/Braquial', desc:'Realize o movimento de supinação (gire o punho para fora) ao subir o halter. Alterne os lados de forma controlada. Mantém volume e concentração por mais tempo.', yt:'https://www.youtube.com/watch?v=sAq_ocpRh_I' },
+    { id:'triceps-corda', name:'Tríceps na Corda', sets:'4x15-12-12-10', muscle:'Tríceps (Cabeça Longa)', desc:'Na polia alta com corda, pressione para baixo separando as pontas ao final. Mantenha os cotovelos colados ao corpo e o tronco levemente inclinado para frente.', yt:'https://www.youtube.com/watch?v=2-LAMcpzODU' },
+    { id:'triceps-testa', name:'Tríceps Testa', sets:'3x12-10-10', muscle:'Tríceps (3 Cabeças)', desc:'Deitado no banco, desça a barra até a testa ou acima da cabeça. É um dos melhores exercícios para hipertrofia do tríceps por trabalhar a cabeça longa em estiramento.', yt:'https://www.youtube.com/watch?v=d_KZxkY_0cM' },
+  ],
+  legs:[
+    { id:'agachamento', name:'Agachamento Livre', sets:'4x12-10-8-6', muscle:'Quadríceps/Glúteos', desc:'Rei dos exercícios. Pés na largura dos ombros, desça até a coxa paralela ao chão. Mantenha o peito erguido, joelhos alinhados com os pés e a lombar neutra.', yt:'https://www.youtube.com/watch?v=ultWZbUMPL8' },
+    { id:'leg-press', name:'Leg Press 45°', sets:'4x15-12-10-10', muscle:'Quadríceps/Posterior', desc:'Posicione os pés na largura dos ombros. Desça até 90° e empurre sem travar os joelhos no topo. Varie a posição dos pés para mudar o enfoque muscular.', yt:'https://www.youtube.com/watch?v=IZxyjW7MPJQ' },
+    { id:'stiff', name:'Stiff (Terra Romeno)', sets:'4x12-10-10-8', muscle:'Isquiotibiais/Glúteos', desc:'Em pé com a barra, incline o tronco mantendo as costas retas. Sinta o estiramento nos isquiotibiais ao descer. Não arredonde a lombar em momento algum.', yt:'https://www.youtube.com/watch?v=1uDiW5--rAE' },
+    { id:'panturrilha', name:'Elevação de Panturrilha', sets:'4x20-15-15-12', muscle:'Gastrocnêmio/Sóleo', desc:'Fique na ponta dos pés com amplitude total. Suba ao máximo e desça completamente. Panturrilha responde bem a alto volume. Varie com joelho dobrado para atacar o sóleo.', yt:'https://www.youtube.com/watch?v=-M4-G8p1fCI' },
+  ],
+  core:[
+    { id:'abdominal', name:'Abdominal Supra', sets:'4x20-15-15-12', muscle:'Reto Abdominal', desc:'Deitado, joelhos dobrados. Suba apenas as escápulas do chão, contraindo o abdômen. Não force o pescoço. Expire ao subir. Execute de forma lenta e controlada.', yt:'https://www.youtube.com/watch?v=1fbU_MkV7NE' },
+    { id:'prancha', name:'Prancha Isométrica', sets:'3x60s', muscle:'Core Profundo', desc:'Apoiado nos antebraços e pontas dos pés. Mantenha o corpo em linha reta, contraindo o abdômen e glúteos. Não deixe o quadril cair ou subir. Respire normalmente.', yt:'https://www.youtube.com/watch?v=pSHjTRCQxIw' },
+    { id:'obliquo', name:'Elevação de Pernas + Torção', sets:'3x15', muscle:'Oblíquos', desc:'Eleve as pernas esticadas e faça uma leve torção ao subir. Trabalha os oblíquos e o reto abdominal de forma integrada.', yt:'https://www.youtube.com/results?search_query=eleva%C3%A7%C3%A3o+pernas+obliquos+treino' },
+    { id:'abcrunch', name:'Abdominal no Cabo', sets:'3x20-15-15', muscle:'Reto Abdominal/Oblíquos', desc:'Ajoelhado de frente à polia alta. Puxe o cabo cruzando os braços na frente do peito e faça o crunch contraindo o abdômen. Retorne de forma controlada.', yt:'https://www.youtube.com/watch?v=D14BaZEW0_w' },
+  ],
+};
+
+// Exercícios "neutros" para complemento
+const NEUTRAL = {
+  compound:[
+    { id:'dead-lift', name:'Levantamento Terra', sets:'3x8-6-5', muscle:'Posterior Completo', desc:'O exercício mais completo da musculação. Costas retas, quadril alto, puxe mantendo a barra próxima ao corpo. Trabalha todo o posterior, glúteos e força funcional.', yt:'https://www.youtube.com/watch?v=op9kVnSso6Q' },
+  ],
+  cardio:[
+    { id:'hiit', name:'HIIT Esteira', sets:'1x20min', muscle:'Cardiovascular', desc:'Alterne 30s de sprint com 1min de caminhada por 20 minutos. Excelente para queima de gordura sem catabolismo muscular.', yt:'https://www.youtube.com/results?search_query=hiit+esteira+treino' },
+  ]
+};
+
+// ── PLANS ──────────────────────────────────────────────────────────────────
+function getPlan(focuses) {
+  const n = focuses.length;
+  // Determinar tipo de plano
+  if (n === 0) return null;
+  let plan, days;
+  if (n === 1) { plan='ABC'; days=3; }
+  else { plan='ABCDE'; days=5; }
+
+  // Grupos prioritários
+  const prio = focuses.map(f => f.id);
+  // Grupos secundários (todos exceto prioritários)
+  const secondary = FOCUSES.map(f=>f.id).filter(id=>!prio.includes(id));
+
+  let dayMap = [];
+  if (plan === 'ABC') {
+    dayMap = [
+      { letter:'A', label: FOCUSES.find(f=>f.id===prio[0]).name + ' + Complemento', muscles:[prio[0], secondary[0]] },
+      { letter:'B', label:'Costas & Bíceps', muscles:['back','arms'] },
+      { letter:'C', label:'Pernas & Core', muscles:['legs','core'] },
+    ];
+    // Se prio inclui back/legs/arms, ajustar
+    if(prio[0]==='back') dayMap[1].muscles=['chest','shoulder'];
+    if(prio[0]==='legs') dayMap[2].muscles=['core','shoulder'];
+  } else {
+    // ABCDE
+    const all = [...prio, ...secondary.slice(0,3)];
+    const allFocuses = [...new Set(all)].slice(0,5);
+    while(allFocuses.length < 5) allFocuses.push(secondary[allFocuses.length % secondary.length]);
+    dayMap = allFocuses.map((m,i)=>({
+      letter: 'ABCDE'[i],
+      label: FOCUSES.find(f=>f.id===m)?.name || m,
+      muscles:[m]
+    }));
+  }
+  return { plan, days, dayMap };
+}
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let state = {
+  selectedFocuses: [],
+  planData: null,
+  activeDay: 0,
+  loads: JSON.parse(localStorage.getItem('forja_loads')||'{}'),
+  currentExercise: null,
+};
+function saveLoads(){ localStorage.setItem('forja_loads', JSON.stringify(state.loads)); }
+
+// ── NAVIGATION ──────────────────────────────────────────────────────────────
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const showNav = id==='screen-plan'||id==='screen-progress';
+  const bn = document.getElementById('bottom-nav');
+  bn.classList.toggle('visible', showNav);
+  document.body.classList.toggle('has-plan', showNav);
+  if(id==='screen-progress') renderProgress();
+}
+
+function switchTab(screenId, navId){
+  goTo(screenId);
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(navId).classList.add('active');
+}
+
+// ── FOCUS SCREEN ──────────────────────────────────────────────────────────
+function renderFocuses(){
+  const grid = document.getElementById('focus-grid');
+  grid.innerHTML = FOCUSES.map(f=>`
+    <div class="focus-card ${state.selectedFocuses.find(x=>x.id===f.id)?'selected':''}" onclick="toggleFocus('${f.id}')">
+      <div class="focus-icon">${f.icon}</div>
+      <div class="focus-name">${f.name}</div>
+      <div class="focus-desc">${f.desc}</div>
+      <div class="focus-check"></div>
+    </div>`).join('');
+  document.getElementById('sel-count').textContent = state.selectedFocuses.length;
+}
+
+function toggleFocus(id){
+  const idx = state.selectedFocuses.findIndex(f=>f.id===id);
+  if(idx>=0){ state.selectedFocuses.splice(idx,1); }
+  else if(state.selectedFocuses.length < 2){ state.selectedFocuses.push(FOCUSES.find(f=>f.id===id)); }
+  else { alert('Máximo 2 focos selecionados!'); return; }
+  renderFocuses();
+}
+
+// ── PLAN BUILD ──────────────────────────────────────────────────────────────
+function buildPlan(){
+  if(state.selectedFocuses.length===0){ alert('Selecione ao menos 1 foco!'); return; }
+  state.planData = getPlan(state.selectedFocuses);
+  state.activeDay = 0;
+  renderPlan();
+  goTo('screen-plan');
+  document.getElementById('nav-treino').classList.add('active');
+  document.getElementById('nav-prog').classList.remove('active');
+}
+
+function renderPlan(){
+  const {plan, days, dayMap} = state.planData;
+  document.getElementById('plan-type-label').textContent = plan;
+  document.getElementById('plan-days-label').textContent = days + ' dias';
+  document.getElementById('plan-focus-label').textContent = state.selectedFocuses.map(f=>f.name).join(' + ');
+
+  // Tabs
+  const tabs = document.getElementById('day-tabs');
+  tabs.innerHTML = dayMap.map((d,i)=>`
+    <div class="day-tab ${i===state.activeDay?'active':''}" onclick="setDay(${i})">
+      ${d.letter} — ${d.label}
+    </div>`).join('');
+
+  renderDayExercises();
+}
+
+function setDay(i){
+  state.activeDay = i;
+  renderPlan();
+}
+
+function renderDayExercises(){
+  const day = state.planData.dayMap[state.activeDay];
+  const container = document.getElementById('exercises-container');
+  container.innerHTML = '';
+  day.muscles.forEach(muscle=>{
+    const exList = EXERCISE_DB[muscle];
+    if(!exList) return;
+    const focusObj = FOCUSES.find(f=>f.id===muscle);
+    const sec = document.createElement('div');
+    sec.className = 'muscle-section';
+    sec.innerHTML = `<div class="muscle-label">${focusObj?.icon||''} ${focusObj?.name||muscle}</div>`;
+    exList.forEach(ex=>{
+      const load = state.loads[ex.id];
+      const lastLoad = load?.history?.at(-1);
+      sec.innerHTML += `
+        <div class="exercise-card" onclick="openModal('${muscle}','${ex.id}')">
+          <div class="ex-sets">
+            <div class="sets-label">Séries</div>
+            <div class="sets-value">${ex.sets.split('x')[0]}x</div>
+          </div>
+          <div class="ex-info">
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-muscle">${ex.muscle} · ${ex.sets}</div>
+          </div>
+          <div class="ex-load">
+            ${lastLoad ? `<div class="load-value">${lastLoad.kg}</div><div class="load-unit">kg</div>` : '<div class="load-empty">— kg</div>'}
+          </div>
+          <div class="ex-arrow">›</div>
+        </div>`;
+    });
+    container.appendChild(sec);
+  });
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────────
+function openModal(muscle, exId){
+  const ex = EXERCISE_DB[muscle].find(e=>e.id===exId);
+  if(!ex) return;
+  state.currentExercise = ex;
+  const load = state.loads[exId];
+  const history = load?.history || [];
+  const lastKg = history.at(-1)?.kg || '';
+
+  const setsParts = ex.sets.split('x');
+  const repsArr = setsParts[1]?.split('-') || [];
+  const setsN = parseInt(setsParts[0]) || repsArr.length || 3;
+  const setsHTML = Array.from({length:setsN},(_,i)=>`
+    <div class="set-badge">
+      <div class="sn">Série ${i+1}</div>
+      <div class="sv">${repsArr[i]||repsArr[0]||12} reps</div>
+    </div>`).join('');
+
+  const histHTML = history.length>0
+    ? history.slice(-5).map(h=>`<div class="load-history-item"><span>${h.date}</span><span>${h.kg} kg</span></div>`).join('')
+    : '<div style="font-size:12px;color:var(--muted2);padding:6px 0">Nenhum registro ainda</div>';
+
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-title">${ex.name}</div>
+    <div class="modal-muscle">${ex.muscle}</div>
+    <div class="modal-section">
+      <div class="modal-section-title">Séries & Repetições</div>
+      <div class="sets-display">${setsHTML}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">Como executar</div>
+      <div class="modal-desc">${ex.desc}</div>
+    </div>
+    <a class="video-btn" href="${ex.yt}" target="_blank">
+      <span class="video-icon">▶</span>Assistir vídeo no YouTube
+    </a>
+    <div class="load-input-area">
+      <div class="modal-section-title">Registrar Carga</div>
+      <div class="load-input-row">
+        <input class="load-input" type="number" id="load-input" placeholder="Ex: 60" value="${lastKg}" step="0.5">
+        <button class="save-load-btn" onclick="saveLoad()">SALVAR</button>
+      </div>
+      <div class="load-history" id="load-history">${histHTML}</div>
+    </div>`;
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e){
+  if(e.target === document.getElementById('modal-overlay')){
+    document.getElementById('modal-overlay').classList.remove('open');
+    renderDayExercises();
+  }
+}
+
+function saveLoad(){
+  const ex = state.currentExercise;
+  const kg = parseFloat(document.getElementById('load-input').value);
+  if(!kg||kg<=0){ alert('Informe uma carga válida!'); return; }
+  if(!state.loads[ex.id]) state.loads[ex.id]={history:[]};
+  const today = new Date().toLocaleDateString('pt-BR');
+  state.loads[ex.id].history.push({date:today, kg});
+  saveLoads();
+  // Update history in modal
+  const history = state.loads[ex.id].history;
+  document.getElementById('load-history').innerHTML = history.slice(-5).map(h=>`
+    <div class="load-history-item"><span>${h.date}</span><span>${h.kg} kg</span></div>`).join('');
+}
+
+// ── PROGRESS ──────────────────────────────────────────────────────────────
+let activeProgEx = null;
+
+function renderProgress(){
+  const container = document.getElementById('charts-area');
+  const nav = document.getElementById('prog-nav');
+  const stats = document.getElementById('stats-row');
+
+  // Collect all exercises that have data
+  const withData = [];
+  Object.keys(EXERCISE_DB).forEach(muscle=>{
+    EXERCISE_DB[muscle].forEach(ex=>{
+      const load = state.loads[ex.id];
+      if(load?.history?.length>0) withData.push({...ex, muscle});
+    });
+  });
+
+  // Stats
+  const totalSessions = Object.values(state.loads).reduce((a,l)=>a+(l.history?.length||0),0);
+  const maxKg = withData.reduce((m,ex)=>{
+    const h = state.loads[ex.id]?.history||[];
+    return Math.max(m,...h.map(i=>i.kg));
+  },0);
+  stats.innerHTML = `
+    <div class="stat-card"><div class="stat-val">${withData.length}</div><div class="stat-lbl">Exercícios</div></div>
+    <div class="stat-card"><div class="stat-val">${totalSessions}</div><div class="stat-lbl">Registros</div></div>
+    <div class="stat-card"><div class="stat-val">${maxKg||'—'}</div><div class="stat-lbl">Max kg</div></div>
+  `;
+
+  if(withData.length===0){
+    nav.innerHTML='';
+    container.innerHTML='<div class="no-data">📊 Nenhum registro ainda.<br>Volte ao treino e registre suas cargas!</div>';
+    return;
+  }
+
+  if(!activeProgEx || !withData.find(e=>e.id===activeProgEx)) activeProgEx = withData[0].id;
+
+  nav.innerHTML = withData.map(ex=>`
+    <button class="prog-btn ${ex.id===activeProgEx?'active':''}" onclick="selectProgEx('${ex.id}')">${ex.name}</button>`).join('');
+
+  renderChart(withData.find(e=>e.id===activeProgEx));
+}
+
+function selectProgEx(id){
+  activeProgEx = id;
+  renderProgress();
+}
+
+function renderChart(ex){
+  const container = document.getElementById('charts-area');
+  const history = state.loads[ex.id]?.history || [];
+  const w=560, h=200, pad={t:20,r:20,b:40,l:44};
+  const vals=history.map(h=>h.kg);
+  const minV=Math.min(...vals)*0.9, maxV=Math.max(...vals)*1.05;
+  const xStep=(w-pad.l-pad.r)/(Math.max(history.length-1,1));
+  const yScale=(v)=>pad.t+(h-pad.t-pad.b)*(1-(v-minV)/(maxV-minV||1));
+  const pts=history.map((p,i)=>`${pad.l+i*xStep},${yScale(p.kg)}`).join(' ');
+  const area=[`${pad.l},${h-pad.b}`,...history.map((p,i)=>`${pad.l+i*xStep},${yScale(p.kg)}`),`${pad.l+(history.length-1)*xStep},${h-pad.b}`].join(' ');
+
+  // Y ticks
+  const yticks=4;
+  const yticksHTML=Array.from({length:yticks+1},(_,i)=>{
+    const v=minV+i*(maxV-minV)/yticks;
+    const y=yScale(v);
+    return `<line x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}" stroke="#242428" stroke-width="1"/>
+    <text x="${pad.l-6}" y="${y+4}" fill="#6a6a75" font-size="10" text-anchor="end" font-family="Space Mono,monospace">${Math.round(v)}</text>`;
+  }).join('');
+
+  // X labels
+  const xlabels=history.map((p,i)=>{
+    if(history.length<=6||i%(Math.ceil(history.length/6))===0)
+      return `<text x="${pad.l+i*xStep}" y="${h-pad.b+18}" fill="#6a6a75" font-size="9" text-anchor="middle" font-family="Space Mono,monospace">${p.date.slice(0,5)}</text>`;
+    return '';
+  }).join('');
+
+  // Dots
+  const dots=history.map((p,i)=>`<circle cx="${pad.l+i*xStep}" cy="${yScale(p.kg)}" r="4" fill="#e8ff47" stroke="#0a0a0b" stroke-width="2"/>
+  <title>${p.date}: ${p.kg}kg</title>`).join('');
+
+  // Trend line (simple linear regression)
+  let trendLine='';
+  if(history.length>1){
+    const n=history.length;
+    const xs=history.map((_,i)=>i);
+    const ys=history.map(h=>h.kg);
+    const mx=xs.reduce((a,b)=>a+b)/n, my=ys.reduce((a,b)=>a+b)/n;
+    const slope=xs.reduce((a,x,i)=>a+(x-mx)*(ys[i]-my),0)/xs.reduce((a,x)=>a+(x-mx)**2,0.001);
+    const intc=my-slope*mx;
+    const ty0=yScale(slope*0+intc), ty1=yScale(slope*(n-1)+intc);
+    trendLine=`<line x1="${pad.l}" y1="${ty0}" x2="${pad.l+(n-1)*xStep}" y2="${ty1}" stroke="#ff4747" stroke-width="1.5" stroke-dasharray="4,3" opacity=".7"/>`;
+  }
+
+  const gain=vals.length>1?((vals.at(-1)-vals[0])/vals[0]*100).toFixed(1):'—';
+
+  container.innerHTML=`
+    <div class="chart-container">
+      <div class="chart-title">${ex.name}</div>
+      <div class="chart-sub">${ex.muscle} · ${history.length} registro${history.length!==1?'s':''} · Evolução: <span style="color:var(--accent)">${gain!=='—'?(gain>0?'+':'')+gain+'%':'—'}</span></div>
+      <div class="chart-svg-wrap">
+        <svg class="progress-chart" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8ff47" stop-opacity=".25"/>
+              <stop offset="100%" stop-color="#e8ff47" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          ${yticks>0?yticksHTML:''}
+          ${history.length>1?`<polygon points="${area}" fill="url(#areaGrad)"/>`:''}
+          ${trendLine}
+          ${history.length>1?`<polyline points="${pts}" fill="none" stroke="#e8ff47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`:''}
+          ${dots}
+          ${xlabels}
+        </svg>
+      </div>
+    </div>`;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+renderFocuses();
+</script>
+</body>
+</html>
