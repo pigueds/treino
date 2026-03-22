@@ -16,7 +16,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 /* ── AUTH ── */
 #sc-auth{background:var(--bg);align-items:center;justify-content:center;padding:24px}
 .auth-box{width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center}
-.auth-logo{width:240px;margin-bottom:32px}
+.auth-logo{width:100%;max-width:400px;margin-bottom:28px}
 .auth-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:30px 26px;width:100%}
 .auth-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:3px}
 .auth-sub{font-size:13px;color:var(--muted);margin-bottom:22px}
@@ -80,6 +80,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .rest-day{background:var(--s2);border-radius:6px;padding:6px 2px;text-align:center}
 .rest-day .rd-name{font-size:8px;letter-spacing:.5px;text-transform:uppercase;font-family:'Space Mono',monospace;color:var(--muted);margin-bottom:3px}
 .rest-day .rd-tag{font-size:13px;display:block}
+.rest-day .rd-text{font-size:7px;font-family:'Space Mono',monospace;font-weight:700;letter-spacing:.5px;margin-top:2px}
+.rest-day.treino .rd-text{color:var(--red2)}
+.rest-day.off .rd-text{color:var(--muted)}
 .rest-day.treino{background:rgba(224,32,32,.1);border:1px solid rgba(224,32,32,.22)}
 .rest-day.off{background:var(--s1);border:1px solid var(--border)}
 
@@ -466,6 +469,7 @@ function renderRestCard(containerId){
     <div class="rest-day ${d.type}">
       <div class="rd-name">${d.n}</div>
       <div class="rd-tag">${d.type==='treino'?'💪':'😴'}</div>
+      <div class="rd-text">${d.type==='treino'?'TREINO':'OFF'}</div>
     </div>`).join('');
   const el=document.getElementById(containerId);
   if(el) el.innerHTML=`<div class="rest-card"><div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Sugestão de Frequência</div><div class="rest-week">${dayHtml}</div></div>`;
