@@ -121,6 +121,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .set-pill{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:7px 11px;text-align:center}.set-pill .sn{font-size:10px;color:var(--muted)}.set-pill .sr{font-family:'Space Mono',monospace;font-size:12px;color:var(--text);font-weight:700;margin-top:1px}
 .interval-pill{background:rgba(196,30,30,.12);border:1px solid rgba(196,30,30,.3);border-radius:8px;padding:7px 12px;font-family:'Space Mono',monospace;font-size:12px;color:var(--red2)}
 .desc-text{font-size:13px;color:#bbbbc4;line-height:1.7}
+.yt-embed-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;background:#000;margin-top:4px}
+.yt-embed-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:10px}
 .yt-btn{display:flex;align-items:center;gap:10px;background:#cc0000;color:#fff;border:none;border-radius:var(--r);padding:12px 16px;width:100%;cursor:pointer;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;transition:opacity .2s;text-decoration:none;margin-bottom:16px}
 .yt-btn:hover{opacity:.85}.yt-icon{font-size:18px}
 .load-box{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:14px}
@@ -556,6 +558,54 @@ function renderPlan(){
 window.setDay=function(i){window._activeDay=i;renderPlan();};
 window.setWeek=function(w){window._S.week=w;saveState();renderPlan();};
 
+// ── VIDEO DATABASE ────────────────────────
+// Edite aqui os links de vídeo de cada exercício.
+// ytId: ID do YouTube (parte após watch?v= ou youtu.be/)
+// ytGato: ID do vídeo "Pulo do Gato" (opcional)
+const VIDEO_DB = {
+  // ── OMBROS ──
+  'elev-lat-d3':  { ytId: 'WMiXJeHFEUc', ytGato: null },   // Elevação Lateral — teste
+  'elev-lat-o1':  { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elev-lat-c2':  { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elpe-o1':      { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elpum-o1':     { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elpu-o4':      { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elso-o4':      { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elu-p3':       { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elh-p3':       { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'el-c2':        { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elp-c2':       { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elps-b2':      { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elss-b2':      { ytId: 'WMiXJeHFEUc', ytGato: null },
+  'elpm-b2':      { ytId: 'WMiXJeHFEUc', ytGato: null },
+  // Adicione mais exercícios aqui conforme for subindo os vídeos:
+  // 'id-do-exercicio': { ytId: 'ID_DO_VIDEO', ytGato: 'ID_PULO_DO_GATO' },
+};
+
+function ytEmbed(ytId, label, icon){
+  return`
+    <div class="msec">
+      <div class="msec-title">${icon} ${label}</div>
+      <div class="yt-embed-wrap">
+        <iframe
+          src="https://www.youtube.com/embed/${ytId}?rel=0&modestbranding=1"
+          title="${label}"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>`;
+}
+
+function buildVideoSection(exId, exNome){
+  const v = VIDEO_DB[exId];
+  if(!v) return `<a class="yt-btn" href="https://www.youtube.com/results?search_query=${encodeURIComponent(exNome)}" target="_blank"><span class="yt-icon">▶</span>Buscar no YouTube</a>`;
+  let html = ytEmbed(v.ytId, 'Execução', '🎬');
+  if(v.ytGato) html += ytEmbed(v.ytGato, 'Pulo do Gato', '💡');
+  return html;
+}
+
 // ── EXERCISE MODAL ────────────────────────
 window._curEx=null;
 window.openExModal=function(exId){
@@ -575,7 +625,7 @@ window.openExModal=function(exId){
       <div class="sets-row"><div class="set-pill"><div class="sn">Método</div><div class="sr">${ex.serie}</div></div><div class="interval-pill">⏱ ${ex.intervalo}</div></div>
     </div>
     <div class="msec"><div class="msec-title">Execução</div><div class="desc-text">${ex.desc}</div></div>
-    <a class="yt-btn" href="${ex.yt}" target="_blank"><span class="yt-icon">▶</span>Ver no YouTube</a>
+    ${buildVideoSection(exId, ex.nome)}
     <div class="load-box">
       <div class="msec-title">Registrar Carga</div>
       <div class="load-row"><input class="load-inp" type="number" id="linp" placeholder="Ex: 60 kg" value="${lastKg}" step="0.5" min="0"><button class="save-btn" onclick="saveLoad()">SALVAR</button></div>
@@ -585,6 +635,8 @@ window.openExModal=function(exId){
 };
 window.closeModalEx=function(e){
   if(e.target===document.getElementById('overlay-ex')){
+    // Stop any playing iframes
+    document.querySelectorAll('#overlay-ex iframe').forEach(f=>{ f.src=f.src; });
     document.getElementById('overlay-ex').classList.remove('open');renderPlan();
   }
 };
