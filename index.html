@@ -468,7 +468,7 @@ function renderRestCard(containerId){
       <div class="rd-tag">${d.type==='treino'?'💪':'😴'}</div>
     </div>`).join('');
   const el=document.getElementById(containerId);
-  if(el) el.innerHTML=`<div class="rest-card"><div class="rest-week">${dayHtml}</div></div>`;
+  if(el) el.innerHTML=`<div class="rest-card"><div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Sugestão de Frequência</div><div class="rest-week">${dayHtml}</div></div>`;
 }
 
 // ── BUILD PLAN ────────────────────────────
