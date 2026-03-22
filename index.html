@@ -87,24 +87,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .rest-day.off{background:var(--s1);border:1px solid var(--border)}
 
 /* ── PLAN ── */
-.plan-banner{background:linear-gradient(135deg,var(--red) 0%,#8b0000 100%);border-radius:var(--r);padding:16px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
-.plan-name{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#fff;letter-spacing:3px;line-height:1}
+.plan-banner{background:linear-gradient(135deg,var(--red) 0%,#8b0000 100%);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.plan-name{font-family:'Bebas Neue',sans-serif;font-size:22px;color:rgba(255,255,255,.65);letter-spacing:2px;line-height:1}
 .plan-info{text-align:right;color:rgba(255,255,255,.85)}.plan-info .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-family:'Space Mono',monospace}.plan-info .val{font-size:14px;font-weight:600;color:#fff;margin-top:1px}
 .week-toggle{display:flex;gap:6px;margin-bottom:16px}
 .wt-btn{flex:1;padding:9px;border-radius:8px;border:2px solid var(--border);background:var(--s1);color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;text-align:center}
 .wt-btn.active{border-color:var(--red2);color:var(--red2);background:rgba(224,32,32,.08)}
 .day-tabs{display:flex;gap:5px;margin-bottom:16px;overflow-x:auto;padding-bottom:3px}
 .day-tabs::-webkit-scrollbar{height:2px}.day-tabs::-webkit-scrollbar-thumb{background:var(--muted2)}
-.dt{background:var(--s1);border:2px solid var(--border);color:var(--muted);padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;white-space:nowrap;transition:all .2s}
+.dt{background:var(--s1);border:2px solid var(--border);color:var(--muted);padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;white-space:nowrap;transition:all .2s}
 .dt:hover:not(.active){border-color:var(--muted2);color:var(--text)}.dt.active{border-color:var(--red2);color:var(--red2);background:rgba(224,32,32,.08)}
-.day-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--red2);margin-bottom:4px}
+.day-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text);margin-bottom:4px}
 .week-note{background:rgba(232,255,71,.07);border:1px solid rgba(232,255,71,.2);border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:var(--accent);line-height:1.5}
 .week-note strong{display:block;margin-bottom:2px;font-family:'Space Mono',monospace;letter-spacing:1px;font-size:10px}
 .ex-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s}
 .ex-card:hover{border-color:var(--s3);background:var(--s2);transform:translateX(3px)}
-.ex-badge{background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:6px 8px;min-width:58px;text-align:center;flex-shrink:0}
-.ex-badge .st{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}.ex-badge .sv{font-family:'Space Mono',monospace;font-size:10px;color:var(--red2);font-weight:700;margin-top:1px;line-height:1.2;word-break:break-word}
-.ex-body{flex:1;min-width:0}.ex-name{font-weight:600;font-size:13px;margin-bottom:2px;line-height:1.3}.ex-detail{font-size:11px;color:var(--muted)}
+.ex-badge{background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:6px 8px;width:64px;min-width:64px;max-width:64px;text-align:center;flex-shrink:0;overflow:hidden}
+.ex-badge .st{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ex-badge .sv{font-family:'Space Mono',monospace;font-size:10px;color:var(--red2);font-weight:700;margin-top:2px;line-height:1.2;word-break:break-all;white-space:normal}
+.ex-body{flex:1;min-width:0}.ex-name{font-weight:600;font-size:15px;margin-bottom:3px;line-height:1.3}.ex-detail{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
 .ex-load-col{text-align:right;flex-shrink:0}.load-val{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--accent)}.load-u{font-size:10px;color:var(--muted)}.load-empty{font-size:11px;color:var(--muted2)}
 .ex-arr{color:var(--muted2);font-size:14px;flex-shrink:0}
 
@@ -490,13 +490,13 @@ function renderPlan(){
   const P=window._S.plan; if(!P) return;
   const W=window._S.week||'1', di=window._activeDay, D=P.dias[di];
   const ld=window._S.loads||{};
-  const tabs=P.dias.map((d,i)=>`<div class="dt${i===di?' active':''}" onclick="setDay(${i})">${d.letra}</div>`).join('');
+  const tabs=P.dias.map((d,i)=>`<div class="dt${i===di?' active':''}" onclick="setDay(${i})">Dia ${i+1}</div>`).join('');
   const note=W==='1'?`<strong>SEMANAS 1 A 4</strong>${P.semanas14}`:`<strong>SEMANAS 4 A 8</strong>${D.semana48}`;
   const exs=D.exercicios.map(ex=>{
     const h=ld[ex.id]?.history||[];const last=h.at(-1);
     return`<div class="ex-card" onclick="openExModal('${ex.id}')">
       <div class="ex-badge"><div class="st">Série</div><div class="sv">${ex.serie}</div></div>
-      <div class="ex-body"><div class="ex-name">${ex.nome}</div><div class="ex-detail">${ex.musculo} · ${ex.intervalo}</div></div>
+      <div class="ex-body"><div class="ex-name">${ex.nome}</div><div class="ex-detail">${ex.serie} · ${ex.intervalo}</div></div>
       <div class="ex-load-col">${last?`<div class="load-val">${last.kg}</div><div class="load-u">kg</div>`:'<div class="load-empty">— kg</div>'}</div>
       <div class="ex-arr">›</div></div>`;
   }).join('');
@@ -643,7 +643,7 @@ function renderMeasures(){
       ${last[f.id]?`<div class="mc-last">Último: ${last[f.id]} ${f.unit}</div>`:''}
     </div>`).join('');
   // Chart tabs
-  const withData = MEASURE_FIELDS.filter(f=>meas.some(m=>m[f.id]));
+  const withData = MEASURE_FIELDS.filter(f=>f.id!=='altura'&&meas.some(m=>m[f.id]));
   if(!_activeMeasChart||!withData.find(f=>f.id===_activeMeasChart)) _activeMeasChart=withData[0]?.id||MEASURE_FIELDS[0].id;
   const chartTabs = withData.map(f=>`<button class="mct-btn${f.id===_activeMeasChart?' active':''}" onclick="selMeasChart('${f.id}')">${f.label}</button>`).join('');
   const chartHtml = withData.length ? renderMeasChart(_activeMeasChart, meas) : '<div class="no-data">📏 Registre medidas para ver a evolução.</div>';
