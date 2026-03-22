@@ -14,9 +14,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── AUTH ── */
-#sc-auth{background:radial-gradient(ellipse at 50% -10%,#2a0808 0%,var(--bg) 60%);align-items:center;justify-content:center;padding:24px}
+#sc-auth{background:var(--bg);align-items:center;justify-content:center;padding:24px}
 .auth-box{width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center}
-.auth-logo{width:200px;margin-bottom:28px}
+.auth-logo{width:240px;margin-bottom:32px}
 .auth-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:30px 26px;width:100%}
 .auth-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:3px}
 .auth-sub{font-size:13px;color:var(--muted);margin-bottom:22px}
@@ -75,17 +75,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .fc.sel .fc-chk{opacity:1}
 
 /* ── REST CARD ── */
-.rest-card{background:linear-gradient(135deg,#1a0a0a 0%,var(--s2) 100%);border:1px solid rgba(196,30,30,.3);border-radius:var(--r);padding:16px;margin-top:20px;margin-bottom:8px}
-.rest-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--red2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.rest-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px}
-.rest-day{background:var(--s2);border-radius:6px;padding:6px 2px;text-align:center;font-size:9px;font-family:'Space Mono',monospace;color:var(--muted)}
-.rest-day .rd-name{font-size:8px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
-.rest-day .rd-tag{font-size:10px;font-weight:700;border-radius:4px;padding:2px 4px;display:inline-block}
-.rest-day.treino{background:rgba(224,32,32,.12);border:1px solid rgba(224,32,32,.25)}
-.rest-day.treino .rd-tag{color:var(--red2)}
+.rest-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:12px 10px;margin-top:0;margin-bottom:0}
+.rest-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.rest-day{background:var(--s2);border-radius:6px;padding:6px 2px;text-align:center}
+.rest-day .rd-name{font-size:8px;letter-spacing:.5px;text-transform:uppercase;font-family:'Space Mono',monospace;color:var(--muted);margin-bottom:3px}
+.rest-day .rd-tag{font-size:13px;display:block}
+.rest-day.treino{background:rgba(224,32,32,.1);border:1px solid rgba(224,32,32,.22)}
 .rest-day.off{background:var(--s1);border:1px solid var(--border)}
-.rest-day.off .rd-tag{color:var(--muted)}
-.rest-note{font-size:12px;color:#b0b0ba;line-height:1.6}
 
 /* ── PLAN ── */
 .plan-banner{background:linear-gradient(135deg,var(--red) 0%,#8b0000 100%);border-radius:var(--r);padding:16px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
@@ -246,7 +242,6 @@ body.hasnav{padding-bottom:76px}
     <div class="pg-title">ESCOLHA O FOCO</div>
     <div class="pg-sub">Selecione 1 grupo para ênfase nas 8 semanas</div>
     <div class="focus-grid" id="focus-grid"></div>
-    <div id="rest-card-focus"></div>
     <button class="btn-red-full" style="margin-top:20px" onclick="buildPlan()">GERAR TREINO →</button>
   </div>
 </div>
@@ -399,7 +394,6 @@ onAuthStateChanged(auth, user => {
     const name = user.displayName || user.email.split('@')[0];
     document.getElementById('plan-title').textContent = name.toUpperCase().substring(0,14);
     renderFocuses();
-    renderRestCard('rest-card-focus');
     if(window._S?.focus){
       window._S.plan = PLANS[window._S.focus];
       window._activeDay = 0;
@@ -471,19 +465,10 @@ function renderRestCard(containerId){
   const dayHtml=days.map(d=>`
     <div class="rest-day ${d.type}">
       <div class="rd-name">${d.n}</div>
-      <div class="rd-tag">${d.type==='treino'?'💪 TREINO':'😴 OFF'}</div>
+      <div class="rd-tag">${d.type==='treino'?'💪':'😴'}</div>
     </div>`).join('');
   const el=document.getElementById(containerId);
-  if(el) el.innerHTML=`
-    <div class="rest-card">
-      <div class="rest-title">📅 SUGESTÃO DE FREQUÊNCIA</div>
-      <div class="rest-week">${dayHtml}</div>
-      <div class="rest-note">
-        <strong>Treinar 3 dias seguidos → descansar 1 dia → treinar 2 dias seguidos → descansar 1 dia.</strong><br>
-        Nas semanas 1–4 foque na melhora da técnica e progressão de cargas.<br>
-        Nas semanas 4–8 inclua rest-pause e drop-set nos exercícios selecionados.
-      </div>
-    </div>`;
+  if(el) el.innerHTML=`<div class="rest-card"><div class="rest-week">${dayHtml}</div></div>`;
 }
 
 // ── BUILD PLAN ────────────────────────────
@@ -511,15 +496,11 @@ function renderPlan(){
       <div class="ex-load-col">${last?`<div class="load-val">${last.kg}</div><div class="load-u">kg</div>`:'<div class="load-empty">— kg</div>'}</div>
       <div class="ex-arr">›</div></div>`;
   }).join('');
-  // Rest card inline in plan
-  const tempDiv=document.createElement('div');
-  tempDiv.id='rest-card-plan-tmp';
   document.getElementById('plan-page').innerHTML=`
     <div class="plan-banner">
       <div><div class="plan-name">${P.label.replace('ÊNFASE ','').split(' ').join('<br>')}</div></div>
       <div class="plan-info"><div class="lbl">Programa</div><div class="val">8 SEMANAS</div><div class="lbl" style="margin-top:4px">5x por semana</div></div>
     </div>
-    <div style="margin-bottom:14px" id="rest-card-plan"></div>
     <div class="week-toggle">
       <div class="wt-btn${W==='1'?' active':''}" onclick="setWeek('1')">Semanas 1–4</div>
       <div class="wt-btn${W==='2'?' active':''}" onclick="setWeek('2')">Semanas 4–8</div>
@@ -527,7 +508,8 @@ function renderPlan(){
     <div class="day-tabs">${tabs}</div>
     <div class="day-title">${D.titulo}</div>
     <div class="week-note">${note}</div>
-    ${exs}`;
+    ${exs}
+    <div style="margin-top:16px" id="rest-card-plan"></div>`;
   renderRestCard('rest-card-plan');
 }
 window.setDay=function(i){window._activeDay=i;renderPlan();};
