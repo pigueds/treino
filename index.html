@@ -496,15 +496,6 @@ function serieTag(serie){
   if(s.includes('FALHA')) return'ATÉ A FALHA';
   return'CARGA FIXA';
 }
-  // Classify series type for badge display
-  const s=serie.toUpperCase();
-  if(s.includes('PIRÂMIDE')||s.includes('PIRAMIDE')) return'PIRÂ-\nMIDE';
-  if(s.includes('SS')||s.includes('SUPER')) return'SUPER\nSÉRIE';
-  if(s.includes('FALHA')) return'ATÉ\nFALHA';
-  if(s.includes('PC')||s.includes('PICO')) return'PICO\nCONTR.';
-  // Fixed sets like 4x8-12, 3x10-15, etc — show as is
-  return serie.replace(' PC','').replace(' PICO DE CONTRAÇÃO','').trim();
-}
 function detailLine(serie, intervalo){
   // Build the subtitle: reps info + rest time
   const s=serie.toUpperCase();
